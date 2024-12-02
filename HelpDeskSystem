@@ -1,0 +1,121 @@
+# HelpDesk Management System
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+
+public class HelpDeskSystem extends JFrame {
+    private ArrayList<Ticket> tickets;
+    private JTextArea ticketArea;
+    private JTextField ticketInput;
+
+    public HelpDeskSystem() {
+        tickets = new ArrayList<>();
+        setTitle("HelpDesk Management System");
+        setSize(400, 300);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+
+        ticketArea = new JTextArea();
+        ticketArea.setEditable(false);
+        add(new JScrollPane(ticketArea), BorderLayout.CENTER);
+
+        JPanel panel = new JPanel();
+        ticketInput = new JTextField(20);
+        JButton createButton = new JButton("Create Ticket");
+        JButton viewButton = new JButton("View Tickets");
+        JButton closeButton = new JButton("Close Ticket");
+
+        createButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                createTicket();
+            }
+        });
+
+        viewButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                viewTickets();
+            }
+        });
+
+        closeButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                closeTicket();
+            }
+        });
+
+        panel.add(ticketInput);
+        panel.add(createButton);
+        panel.add(viewButton);
+        panel.add(closeButton);
+        add(panel, BorderLayout.SOUTH);
+    }
+
+    private void createTicket() {
+        String ticketDescription = ticketInput.getText();
+        if (!ticketDescription.isEmpty()) {
+            tickets.add(new Ticket(ticketDescription));
+            ticketInput.setText("");
+            JOptionPane.showMessageDialog(this, "Ticket Created!");
+        } else {
+            JOptionPane.showMessageDialog(this, "Please enter a ticket description.");
+        }
+    }
+
+    private void viewTickets() {
+        StringBuilder sb = new StringBuilder();
+        for (Ticket ticket : tickets) {
+            sb.append(ticket.toString()).append("\n");
+        }
+        ticketArea.setText(sb.toString());
+    }
+
+    private void closeTicket() {
+        String ticketDescription = ticketInput.getText();
+        for (Ticket ticket : tickets) {
+            if (ticket.getDescription().equals(ticketDescription) && !ticket.isClosed()) {
+                ticket.close();
+                ticketInput.setText("");
+                JOptionPane.showMessageDialog(this, "Ticket Closed!");
+                return;
+            }
+        }
+        JOptionPane.showMessageDialog(this, "Ticket not found or already closed.");
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            HelpDeskSystem system = new HelpDeskSystem();
+            system.setVisible(true);
+        });
+    }
+}
+
+class Ticket {
+    private String description;
+    private boolean closed;
+
+    public Ticket(String description) {
+        this.description = description;
+        this.closed = false;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public boolean isClosed() {
+        return closed;
+    }
+
+    public void close() {
+        closed = true;
+    }
+
+    @Override
+    public String toString() {
+        return description + (closed ? " [CLOSED]" : " [OPEN]");
+    }
+}
